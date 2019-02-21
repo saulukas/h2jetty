@@ -13,7 +13,7 @@ public class ExtjsChapter7Servlet extends HttpServlet {
     public void service(HttpCycle http) throws Exception {
 
         ExtjsStoreRequestParams storeParams = storeRequestParamsFrom(http.request);
-        System.out.println("-------[" + storeParams + "]");
+        System.out.println("-- extjs7ch --[" + storeParams + "]");
 
         addExtjsStoreHeader(http.response);
         writeExtjsStorePayload(storeParams, http.response, extjsStoreSuccess("Nekažką..."));
