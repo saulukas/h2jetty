@@ -1,6 +1,6 @@
 #!/bin/bash
-#sudo apt-get install inotify-tools
 
+# prepare exiting while-cycle bellow via Ctrl-C
 sigint_handler()
 {
   kill $PID
@@ -9,18 +9,23 @@ sigint_handler()
 
 trap sigint_handler SIGINT
 
+SAGA="java -jar utils/saga.jar"
+PATH_SEPARATOR=$($SAGA unix-win path-separator)
+
 echo "----"
 echo "---- setting classpath ----------------------------------------------------------------"
 echo "----"
-CLASSPATH=$(mvn -q exec:exec -Dexec.executable=echo -Dexec.args="%classpath")
-echo $CLASSPATH | tr ":" "\n"
+
+CLASS_PATH=$(mvn -q exec:exec -Dexec.executable=echo -Dexec.args="%classpath")
+echo $CLASS_PATH | tr "$PATH_SEPARATOR" "\n"
 
 while true; do
   echo "----"
   echo "---- starting Jetty -------------------------------------------------------------------"
   echo "----"
-  java -cp $CLASSPATH h2jetty.H2JettyServer &
+  java -cp $CLASS_PATH h2jetty.H2JettyServer &
   PID=$!
-  inotifywait -e modify -e move -e create -e delete -e attrib -r $(echo $CLASSPATH | tr ":" " ")
+  echo $CLASS_PATH | tr ":" " "
+  $SAGA watch $(echo $CLASS_PATH | tr "$PATH_SEPARATOR" " ")
   kill -9 $PID
 done

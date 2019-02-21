@@ -35,7 +35,7 @@ public class H2JettyServer {
                 statement.execute("select 1 from dual;");
                 try (ResultSet resultSet = statement.getResultSet()) {
                     resultSet.next();
-                    System.out.println("result is = " + resultSet.getObject(1));
+                    System.out.println("result is [" + resultSet.getObject(1) + "]");
                 }
             }
         });
