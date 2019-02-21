@@ -12,9 +12,7 @@ trap sigint_handler SIGINT
 SAGA="java -jar utils/saga.jar"
 PATH_SEPARATOR=$($SAGA unix-win path-separator)
 
-echo "----"
 echo "---- setting classpath ----------------------------------------------------------------"
-echo "----"
 
 CLASS_PATH=$(mvn -q exec:exec -Dexec.executable=echo -Dexec.args="%classpath")
 echo $CLASS_PATH | tr "$PATH_SEPARATOR" "\n"
