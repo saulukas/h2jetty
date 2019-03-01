@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#
+#   Starts application and watches maven's CLASSPATH for changes.
+#   Restarts application on any target/dependency-libs change.
+#
+#   Nice with "compile-on-save" IDE feature.
+#
+
 # prepare exiting while-cycle bellow via Ctrl-C
 sigint_handler()
 {
@@ -19,8 +26,8 @@ echo $CLASS_PATH | tr "$PATH_SEPARATOR" "\n"
 
 while true; do
   echo "---- starting Jetty -------------------------------------------------------------------"
-  java -cp $CLASS_PATH h2jetty.H2JettyServer &
+  java -cp "$CLASS_PATH" h2jetty.H2JettyServer &
   PID=$!
-  $SAGA watch $(echo $CLASS_PATH | tr "$PATH_SEPARATOR" " ")
+  $SAGA watch "$CLASS_PATH"
   kill -9 $PID
 done

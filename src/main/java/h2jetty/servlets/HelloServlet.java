@@ -12,7 +12,7 @@ public class HelloServlet extends HttpServlet {
         String name = firstNonNull(http.request.getParameter("name"), "Tomas");
 
         http.response.setContentType("text/plain;charset=utf-8");
-        http.response.getWriter().write("Hello, " + name + "!\n");
+        http.response.getWriter().write("Labas vakaras, " + name + "!\n");
         String pathAndQuery = firstNonNull(http.request.getPathInfo(), "");
         if (http.request.getQueryString() != null) {
             pathAndQuery += "?" + http.request.getQueryString();
