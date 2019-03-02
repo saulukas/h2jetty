@@ -29,5 +29,7 @@ while true; do
   java -cp "$CLASS_PATH" h2jetty.H2JettyServer &
   PID=$!
   $SAGA watch "$CLASS_PATH"
+  echo " "
+  echo "---- killing Jetty --------------------------------------------------------------------"
   kill -9 $PID
 done
