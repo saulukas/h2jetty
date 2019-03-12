@@ -9,20 +9,22 @@ import org.slf4j.Logger;
 
 import static h2jetty.utils.ExceptionUtils.rethrowRuntimeExceptionOf;
 import static h2jetty.utils.ExceptionUtils.runtimeExceptionOf;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class JdbcUtils {
 
     private static final Logger LOG = getLogger(JdbcUtils.class);
 
-    public static void newTransaction(DataSource dataSource, ExceptionalConsumer<Connection> function) {
-        newTransaction(dataSource, (connection) -> {
+    public static void inNewTx(DataSource dataSource, ExceptionalConsumer<Connection> function) {
+        inNewTx(dataSource, (connection) -> {
             function.consume(connection);
             return null;
         });
     }
 
-    public static <T> T newTransaction(DataSource dataSource, ExceptionalFunction<Connection, T> function) {
+    public static <T> T inNewTx(DataSource dataSource, ExceptionalFunction<Connection, T> function) {
         Connection connection = rethrowRuntimeExceptionOf(() -> dataSource.getConnection());
         try {
             connection.setAutoCommit(false);
@@ -64,6 +66,25 @@ public class JdbcUtils {
             this.result = result;
         }
 
+    }
+
+    public static Object selectSingleValue(Connection connection, String sql) {
+        return rethrowRuntimeExceptionOf(() -> {
+            try (Statement statement = connection.createStatement()) {
+                try (ResultSet resultSet = statement.executeQuery(sql)) {
+                    boolean hasResults = resultSet.next();
+                    if (!hasResults) {
+                        throw new RuntimeException("SQL query returned not results: " + sql);
+                    }
+                    Object result = resultSet.getObject(1);
+                    hasResults = resultSet.next();
+                    if (hasResults) {
+                        throw new RuntimeException("SQL query returned more than one row: " + sql);
+                    }
+                    return result;
+                }
+            }
+        });
     }
 
 }

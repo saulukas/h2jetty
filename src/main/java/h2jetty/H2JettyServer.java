@@ -6,12 +6,11 @@ import h2jetty.servlets.*;
 import h2jetty.utils.H2Database;
 import h2jetty.utils.HttpServer;
 import java.lang.management.ManagementFactory;
-import java.sql.ResultSet;
 import java.sql.Statement;
 import javax.sql.DataSource;
 
-import static h2jetty.utils.JdbcUtils.newTransaction;
 import static java.lang.System.currentTimeMillis;
+import static h2jetty.utils.JdbcUtils.inNewTx;
 
 public class H2JettyServer {
 
@@ -23,24 +22,18 @@ public class H2JettyServer {
         int dbPort = 7701;
         String dbName = "somedb";
 
-     //   H2Database.startServer(dbPort, dbName);
+        H2Database.startServer(dbPort, dbName);
 
         long createDbStartMillis = currentTimeMillis();
         System.out.println("....... creating h2 database ....... ");
         DataSource dataSource = H2Database.createDataSource(dbName, "extjs7", "extjs7");
         System.out.println("JDBC URL: " + H2Database.jdbcUrlExternal(dbPort, dbName));
 
-        newTransaction(dataSource, (connection) -> {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute("select 1 from dual;");
-                try (ResultSet resultSet = statement.getResultSet()) {
-                    resultSet.next();
-                    System.out.println("result is [" + resultSet.getObject(1) + "]");
-                }
-            }
+        inNewTx(dataSource, (connection) -> {
+            System.out.println("H2 database version: " + H2Database.getH2Version(connection));
         });
 
-        newTransaction(dataSource, (connection) -> {
+        inNewTx(dataSource, (connection) -> {
             try (Statement statement = connection.createStatement()) {
                 statement.execute(SqlText.RECREATE_DB);
             }
@@ -74,4 +67,5 @@ public class H2JettyServer {
 
         httpServer.join();
     }
+
 }

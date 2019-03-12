@@ -2,6 +2,7 @@ package h2jetty.utils;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import java.sql.Connection;
 import java.sql.SQLException;
 import javax.sql.DataSource;
 import org.h2.tools.Server;
@@ -33,6 +34,13 @@ public class H2Database {
         config.addDataSourceProperty("prepStmtCacheSize", "250");
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         return new HikariDataSource(config);
+    }
+
+    public static String getH2Version(Connection connection) {
+        return "" + JdbcUtils.selectSingleValue(connection, ""
+                + "select value"
+                + "\n  from information_schema.settings"
+                + "\n  where name = 'info.VERSION'");
     }
 
 }
